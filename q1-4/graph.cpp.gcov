@@ -1,0 +1,122 @@
+        -:    0:Source:graph.cpp
+        -:    0:Graph:graph_program-graph.gcno
+        -:    0:Data:graph_program-graph.gcda
+        -:    0:Runs:1
+        -:    1:
+        -:    2:#include <iostream>
+        -:    3:#include <vector>
+        -:    4:#include <list>
+        -:    5:#include <cstdlib>
+        -:    6:#include <ctime>
+        -:    7:#include "graph.hpp"
+        -:    8:
+        -:    9:// Constructor - create a graph with V vertices
+        1:   10:Graph::Graph(int V) {
+        1:   11:    this->V = V;
+        1:   12:    adj.resize(V);
+        1:   13:}
+        -:   14:
+    #####:   15:std::list<int> Graph::getAdj(int i) {
+    #####:   16:    return adj[i];
+        -:   17:}
+        -:   18:
+        -:   19:
+        -:   20:// Add an edge to the graph
+        2:   21:void Graph::addEdge(int v, int w) {
+        2:   22:    adj[v].push_back(w);
+        2:   23:    adj[w].push_back(v); // Undirected graph
+        2:   24:}
+        -:   25:
+        -:   26:// Helper function for DFS to check connectivity
+        3:   27:void Graph::DFSUtil(int v, std::vector<bool>& visited) {
+        3:   28:    visited[v] = true;
+        7:   29:    for (auto i = adj[v].begin(); i != adj[v].end(); ++i) {
+        4:   30:        if (!visited[*i]) {
+        2:   31:            DFSUtil(*i, visited);
+        -:   32:        }
+        -:   33:    }
+        3:   34:}
+        -:   35:
+        -:   36:// Check if all vertices with non-zero degree are connected
+        1:   37:bool Graph::isConnected() {
+        1:   38:    std::vector<bool> visited(V, false);
+        1:   39:    int nonZeroDegree = -1;
+        -:   40:
+       1*:   41:    for (int i = 0; i < V; i++) {
+        1:   42:        if (!adj[i].empty()) {
+        1:   43:            nonZeroDegree = i;
+        1:   44:            break;
+        -:   45:        }
+        -:   46:    }
+        -:   47:
+       1*:   48:    if (nonZeroDegree == -1) return true;
+        -:   49:
+        1:   50:    DFSUtil(nonZeroDegree, visited);
+        -:   51:
+        4:   52:    for (int i = 0; i < V; i++) {
+       3*:   53:        if (!visited[i] && !adj[i].empty()) {
+    #####:   54:            return false;
+        -:   55:        }
+        -:   56:    }
+        -:   57:
+        1:   58:    return true;
+        1:   59:}
+        -:   60:
+        -:   61:// Function to check for an Euler circuit
+        1:   62:bool Graph::isEulerian() {
+       1*:   63:    if (!isConnected()) return false;
+        -:   64:
+        1:   65:    int odd = 0;
+        4:   66:    for (int i = 0; i < V; i++) {
+        3:   67:        if (adj[i].size() % 2 != 0) {
+        2:   68:            odd++;
+        -:   69:        }
+        -:   70:    }
+        -:   71:
+        1:   72:    return (odd == 0);
+        -:   73:}
+        -:   74:
+        -:   75:// Print the Eulerian circuit if it exists
+        1:   76:void Graph::printEulerianCircuit() {
+        1:   77:    if (!isEulerian()) {
+        1:   78:        std::cout << "The graph does not have an Euler circuit." << std::endl;
+        1:   79:        return;
+        -:   80:    }
+    #####:   81:    std::cout << "The graph has an Euler circuit." << std::endl;
+        -:   82:}
+        -:   83:
+        -:   84:// Generate a random graph
+    #####:   85:void generateRandomGraph(Graph& g, int vertexCount, int edgeCount, unsigned int seed) {
+    #####:   86:    srand(seed);
+    #####:   87:    for (int i = 0; i < edgeCount; i++) {
+    #####:   88:        int u = rand() % vertexCount;
+    #####:   89:        int v = rand() % vertexCount;
+    #####:   90:        if (u != v) {
+    #####:   91:            g.addEdge(u, v);
+        -:   92:        }
+        -:   93:    }
+    #####:   94:}
+        -:   95:
+        -:   96:
+        -:   97:
+        -:   98:// Function to manually add edges
+    #####:   99:void Graph::manualAddEdge(int v, int w) {
+    #####:  100:    if (v >= 0 && v < V && w >= 0 && w < V) {
+    #####:  101:        addEdge(v, w);
+    #####:  102:        std::cout << "Added edge between " << v << " and " << w << std::endl;
+        -:  103:    } else {
+    #####:  104:        std::cout << "Invalid vertex number!" << std::endl;
+        -:  105:    }
+    #####:  106:}
+        -:  107:
+        -:  108:// Function to display the graph
+    #####:  109:void Graph::displayGraph() {
+    #####:  110:    std::cout << "Graph adjacency list:" << std::endl;
+    #####:  111:    for (int i = 0; i < V; i++) {
+    #####:  112:        std::cout << i << ": ";
+    #####:  113:        for (const int& neighbor : adj[i]) {
+    #####:  114:            std::cout << neighbor << " ";
+        -:  115:        }
+    #####:  116:        std::cout << std::endl;
+        -:  117:    }
+    #####:  118:}

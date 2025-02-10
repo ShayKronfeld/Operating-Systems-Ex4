@@ -1,0 +1,33 @@
+==24388== Callgrind, a call-graph generating cache profiler
+==24388== Copyright (C) 2002-2017, and GNU GPL'd, by Josef Weidendorfer et al.
+==24388== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==24388== Command: ./main
+==24388== 
+==24388== For interactive control, run 'callgrind_control -h'.
+Singleton integer value: 42
+Another Singleton integer value: 42
+Singleton string value: string example
+Another Singleton string value: string example
+Locking mutex in Guard constructor
+Inside the guarded section.
+Mutex is already locked by Guard
+Unlocking mutex in Guard destructor
+Outside the guarded section.
+Mutex is locked now, after Guard relased in destructor
+==24388== 
+==24388== Process terminating with default action of signal 27 (SIGPROF)
+==24388==    at 0x4BB0A1A: __open_nocancel (open64_nocancel.c:39)
+==24388==    by 0x4BBF56F: write_gmon (gmon.c:370)
+==24388==    by 0x4BBFDDE: _mcleanup (gmon.c:444)
+==24388==    by 0x4ADCA55: __cxa_finalize (cxa_finalize.c:83)
+==24388==    by 0x10B7D6: ??? (in /home/elil/os_ex4/q8(1)/main)
+==24388==    by 0x400624D: _dl_fini (dl-fini.c:142)
+==24388==    by 0x4ADC494: __run_exit_handlers (exit.c:113)
+==24388==    by 0x4ADC60F: exit (exit.c:143)
+==24388==    by 0x4AC0D96: (below main) (libc_start_call_main.h:74)
+==24388== 
+==24388== Events    : Ir
+==24388== Collected : 2399775
+==24388== 
+==24388== I   refs:      2,399,775
+Profiling timer expired

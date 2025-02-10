@@ -1,0 +1,113 @@
+        -:    0:Source:main.cpp
+        -:    0:Graph:graph_program-main.gcno
+        -:    0:Data:graph_program-main.gcda
+        -:    0:Runs:1
+        -:    1:#include <iostream>
+        -:    2:#include <cstdlib>
+        -:    3:#include <unistd.h> // getopt
+        -:    4:#include <vector>
+        -:    5:#include <set>
+        -:    6:#include <sstream> 
+        -:    7:#include "graph.hpp"
+        -:    8:
+        -:    9:using namespace std;
+        -:   10:
+        -:   11:// Function to randomly add missing edges
+        1:   12:void addRandomEdges(Graph& g, int vertexCount, size_t edgeCount, set<pair<int, int>>& edgesAdded) {
+        5:   13:    while (edgesAdded.size() < edgeCount) {
+        4:   14:        int u = rand() % vertexCount;
+        4:   15:        int v = rand() % vertexCount;
+        4:   16:        if (u != v) {
+        3:   17:            pair<int, int> edge = make_pair(min(u, v), max(u, v)); // To avoid duplicates
+        3:   18:            if (edgesAdded.find(edge) == edgesAdded.end()) { // If the edge is not in edgesAdded
+        2:   19:                edgesAdded.insert(edge);
+        2:   20:                g.addEdge(u, v);
+        2:   21:                cout << "Randomly added edge: " << u << " - " << v << endl;  
+        -:   22:            }
+        -:   23:        }
+        -:   24:    }
+        1:   25:}
+        -:   26:
+        -:   27:// Main function to receive parameters from command line and run the algorithm
+        1:   28:int main(int argc, char* argv[]) {
+        -:   29:
+        1:   30:    int vertexCount = 0;
+        1:   31:    size_t edgeCount = 0;  
+        -:   32:    int option;
+        1:   33:    vector<pair<int, int>> userEdges;  // List of edges provided by the user
+        1:   34:    set<pair<int, int>> edgesAdded;    // List of edges added in the end (including random ones)
+        -:   35:
+        -:   36: 
+        -:   37:    // Use getopt to read parameters from command line
+        4:   38:    while ((option = getopt(argc, argv, "v:e:s:a:")) != -1) {
+        3:   39:        switch (option) {
+        1:   40:        case 'v': vertexCount = atoi(optarg); break;
+        1:   41:        case 'e': edgeCount = atoi(optarg); break;
+        1:   42:        case 's': { 
+        1:   43:            unsigned int seed = atoi(optarg);  // Add seed if needed later
+        1:   44:            srand(seed);  // Set the seed for randomness
+        1:   45:            break;
+        -:   46:        }
+    #####:   47:        case 'a': {
+        -:   48:            // Split the edges provided by the user
+    #####:   49:            string input = optarg;
+    #####:   50:            stringstream ss(input);
+    #####:   51:            string edge;
+    #####:   52:            while (getline(ss, edge, ',')) { // Split the edges by commas
+        -:   53:                int u, v;
+        -:   54:                // Check if the edges are in the correct format (e.g., "0-1")
+    #####:   55:                if (sscanf(edge.c_str(), "%d-%d", &u, &v) == 2) { // Correctly read the edge
+    #####:   56:                    if (u != v) {  // Check if the vertices are different
+    #####:   57:                        userEdges.push_back(make_pair(u, v));
+        -:   58:                    } else {
+    #####:   59:                        cerr << "Invalid edge: " << u << "," << v << " (same vertex)" << endl;
+        -:   60:                    }
+        -:   61:                } else {
+    #####:   62:                    cerr << "Invalid edge format: " << edge << endl;  // If the edge is not correct
+        -:   63:                }
+        -:   64:            }
+    #####:   65:            break;
+    #####:   66:        }
+    #####:   67:        default:
+    #####:   68:            cerr << "Usage: " << argv[0] << " -v <vertices> -e <edges> -s <seed> -a <edges>" << endl;
+    #####:   69:            return 1;
+        -:   70:        }
+        -:   71:    }
+        -:   72:
+        1:   73:    if (vertexCount <= 0 || edgeCount <= 0) {
+    #####:   74:        cerr << "Error: Number of vertices and edges must be greater than 0." << endl;
+    #####:   75:        return 1;
+        -:   76:    }
+        -:   77:
+        1:   78:    if (userEdges.size() > edgeCount){
+    #####:   79:        cerr << "Error: The number of edges received is greater than the number entered." << endl;
+    #####:   80:        return 1;
+        -:   81:    }
+        -:   82:    
+        -:   83:    // Create the graph
+        1:   84:    Graph g(vertexCount);
+        -:   85:
+        -:   86:    // Add the edges provided by the user
+       1*:   87:    for (auto& edge : userEdges) {
+    #####:   88:        int u = edge.first;
+    #####:   89:        int v = edge.second;
+    #####:   90:        if (u >= 0 && v >= 0 && u < vertexCount && v < vertexCount) {
+    #####:   91:            g.addEdge(u, v);
+    #####:   92:            edgesAdded.insert(make_pair(min(u, v), max(u, v)));
+    #####:   93:            cout << "User added edge: " << u << " - " << v << endl;  // Print the edges added by the user
+        -:   94:            
+        -:   95:        } else {
+    #####:   96:            cerr << "Invalid edge: " << u << " - " << v << endl;
+        -:   97:        }
+        -:   98:    }
+        -:   99:
+        -:  100:    // If the number of edges provided by the user is less than the minimum, add random edges
+        1:  101:    if (edgesAdded.size() < edgeCount) {
+        1:  102:        addRandomEdges(g, vertexCount, edgeCount, edgesAdded);
+        -:  103:    }
+        -:  104:
+        -:  105:    // Check for Eulerian circuit
+        1:  106:    g.printEulerianCircuit();
+        -:  107:
+        1:  108:    return 0;
+        1:  109:}
